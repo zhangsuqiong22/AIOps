@@ -27,36 +27,17 @@ def main(
     batch_size: int = 1,
     frequency: int = 100,
     training_length = 60,
-    #training_length = 11,
-    forecast_window = 12,
-    #train_csv = "train_dataset_20240905.csv",
-    train_csv = "june.csv",
-    #train_csv = "train_dataset_merged.csv",
-    #train_csv = "train_dataset_core123sum.csv",
-    test_csv = "june.csv",
+    forecast_window = 24,
+    train_csv = "train250505.csv",
+    test_csv = "test250505.csv",
     path_to_save_model = "save_model/",
     path_to_save_loss = "save_loss/", 
     path_to_save_predictions = "save_predictions/",
-    device = "cpu",
-    tflite_inference = False
+    device = "cpu"
+    #device = "cuda:7"
 ):
 
     clean_directory()
-
-    #train_dataset = EmDataset(csv_name = train_csv, root_dir = "Data/", training_length = training_length, forecast_window = forecast_window)
-    #train_dataloader = DataLoader(train_dataset, batch_size=1, shuffle=True)
-    
-    ## train_teacher_forcing
-    #best_model = transformer(train_dataloader, epoch, frequency, path_to_save_model, path_to_save_loss, path_to_save_predictions, device)
-    
-    ## train_with_sampling
-    ## best_model = transformer(train_dataloader, epoch, k, frequency, path_to_save_model, path_to_save_loss, path_to_save_predictions, device)
-
-    ##test_dataset = EmDataset(csv_name = test_csv, root_dir = "Data/", training_length = training_length, forecast_window = forecast_window)
-    ##test_dataloader = DataLoader(test_dataset, batch_size=1, shuffle=True)
-        
-    ##inference(path_to_save_predictions, forecast_window, test_dataloader, device, path_to_save_model, best_model)
-
 
     if option == "train":
         print("Starting training...")
@@ -94,16 +75,13 @@ def main(
         )
         test_dataloader = DataLoader(test_dataset, batch_size=args.batch_size, shuffle=True)
 
-        # Inference mode: Use the pre-trained model to make predictions
-        #best_model_path = "temp_model/test.pth"  # Modify this path as needed for your model
         best_model_path = os.path.join(args.best_model_save_path, args.model_name)
         predictions = inference(
             path_to_save_predictions,  
             forecast_window,            
             test_dataloader,                 
             args.device,                     
-            best_model_path,
-            tflite_inference
+            best_model_path                  
         )
         print(f"Inference complete. Predictions saved at {args.path_to_save_predictions}")
 
@@ -120,7 +98,6 @@ if __name__ == "__main__":
     parser.add_argument("--device", type=str, default="cpu")
     parser.add_argument("--best_model_save_path",type=str,default="best_model/")
     parser.add_argument("--model_name", type=str, default="best_train.pth", help="Name for the best saved model.")
-    parser.add_argument("--tflite_inference", type=str, default=None)
     parser.add_argument(
         "--option", 
         type=str,
@@ -140,6 +117,5 @@ if __name__ == "__main__":
         path_to_save_predictions=args.path_to_save_predictions,
         device=args.device,
         option=args.option,
-        tflite_inference=args.tflite_inference
     )
 
